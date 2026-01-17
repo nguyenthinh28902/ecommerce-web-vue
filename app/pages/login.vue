@@ -11,7 +11,7 @@
 const config = useRuntimeConfig();
 const loginWithGoogle = () => {
   const returnUrl = window.location.origin + '/callback?status=success';
-  const targetUrl = `${config.public.apiGatewayBaseUrl}/dang-nhap?returnUrl=${encodeURIComponent(returnUrl)}`;
+  const targetUrl = `${config.public.apiGatewayBaseUrl}?returnUrl=${encodeURIComponent(returnUrl)}`;
   window.location.href = targetUrl;
 };
 </script>
