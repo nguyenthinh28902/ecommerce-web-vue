@@ -1,6 +1,8 @@
 // constants/apiList.ts
 export const ApiRoutes = {
   Auth: {
-    LOGIN: '/dang-nhap',
+    Login: '/dang-nhap',
+    Logout: '/dang-xuat',
+    GetCurrentCustomerInfo: '/api/khach-hang/thong-tin',
   },
 } as const

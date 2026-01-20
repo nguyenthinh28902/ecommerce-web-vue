@@ -1,52 +1,61 @@
 import { defineStore } from 'pinia'
-
-interface CustomerDto {
-  id: number;
-  username: string;
-  displayName?: string;
-  avatarUrl?: string;
-  email?: string;
-}
+import type { Result } from '@/models/result'
+import type { CustomerDto } from '@/models/customer'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null as CustomerDto | null,
-    isLoggedIn: false,
+    isLoggedIn: false
   }),
+
   actions: {
-    setUser(data: CustomerDto) {
-      this.user = data;
-      this.isLoggedIn = true;
+    setUser(user: CustomerDto) {
+      this.user = user
+      this.isLoggedIn = true
     },
+
     clearAuth() {
-      this.user = null;
-      this.isLoggedIn = false;
-      useCookie('is_logged_in').value = null;
-      useCookie('auth_expires').value = null;
+      this.user = null
+      this.isLoggedIn = false
+      useCookie('is_logged_in').value = null
+      useCookie('auth_expires').value = null
     },
-    async logout() {
-      const config = useRuntimeConfig();
-      
-      try {
-        // 1. Gọi API xóa session phía Server (nếu cần)
-        await $fetch(`${config.public.apiGatewayBaseUrl}/dang-xuat`, {
-            mode: 'no-cors' // Để tránh lỗi CORS khi redirect
-        });
-      } catch (e) {
-        console.log("Xóa session server...");
+
+    async login() {
+      const config = useRuntimeConfig()
+
+      const res = await $fetch<Result<CustomerDto>>(
+        `${config.public.apiGatewayBaseUrl}/dang-nhap`,
+        {
+          method: 'POST',
+          credentials: 'include'
+        }
+      )
+
+      if (!res.isSuccess || !res.data) {
+        this.clearAuth()
+        throw new Error(res.error ?? 'Login failed')
       }
 
-      // 2. Xóa dữ liệu trong Pinia
-      this.user = null;
-      this.isLoggedIn = false;
+      // ✅ BE trả về Result<CustomerDto>
+      this.setUser(res.data)
 
-      // 3. Xóa Cookie mà Google/Backend đã set cho trình duyệt
-      const isLoggedIn = useCookie('is_logged_in');
-      isLoggedIn.value = null;
+      // optional: sync cookie state
+      useCookie('is_logged_in').value = '1'
+    },
 
-      // 4. Chuyển về trang login
-      await navigateTo('/');
+    async logout() {
+      const config = useRuntimeConfig()
+
+      try {
+        await $fetch(`${config.public.apiGatewayBaseUrl}/dang-xuat`, {
+          method: 'POST',
+          credentials: 'include'
+        })
+      } catch {}
+
+      this.clearAuth()
+      await navigateTo('/')
     }
   }
-
 })
