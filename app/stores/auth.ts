@@ -15,6 +15,7 @@ export const useAuthStore = defineStore('auth', {
     },
 
     clearAuth() {
+    
       this.user = null
       this.isLoggedIn = false
       useCookie('is_logged_in').value = null

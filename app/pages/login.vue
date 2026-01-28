@@ -8,7 +8,7 @@
 </template>
 
 <script setup>
-  import { ApiRoutes } from '@/constants/apiList'
+import { ApiRoutes } from '@/constants/apiList'
 const config = useRuntimeConfig();
 const loginWithGoogle = () => {
   const returnUrl = window.location.origin + '/callback?status=success';
